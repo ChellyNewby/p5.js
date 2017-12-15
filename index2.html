@@ -2,7 +2,6 @@
 
 <head>
 
-   
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.5/p5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.5/addons/p5.dom.js"></script>
     <script src="../libraries/p5.speech.js"></script>
@@ -10,26 +9,25 @@
     <script>
         var sonnets;
         var poemString;
-        var lang= navigator.language || 'en-US';
-        let readPoem = new p5.Speech('Microsoft Zira Desktop - English (United States)');
-        var ownPoem = new p5.SpeechRec(lang); 
-         
-        ownPoem.onResult=resultRecord;
-        
-     
+        var arr1 = new Array("Your Poem"); //holds the data for own poem
+        var lang = navigator.language || 'en-US';
+        let readPoem = new p5.Speech('Microsoft Zira Desktop - English (United States)'); //loads p5.Speech
+        var ownPoem = new p5.SpeechRec(lang); //loads speech recognition
+        ownPoem.continuous = true; //makes the speechrec continuous
+        ownPoem.onResult = resultRecord;
+        var count = 120;
         var speakbutton; // UI
-        var song;
-        var playing=true;
-        var read;
-        
+        var playing = true;
+        var read; //checks which selection was made. used in mousePressed
+
 
         function setup() {
             background(128);
             createCanvas(windowWidth, windowHeight);
             noLoop();
-           
-            loadJSON('data/Shakespeare.json', loadPoem);
-           
+
+            loadJSON('data/Shakespeare.json', loadPoem); //loads the Shakespeare json for the readPoem method
+
         }
 
 
@@ -38,164 +36,167 @@
 
         function loadPoem(data) {
             // The JSON is now in data!
-            
-           
+
+
             sonnets = data;
-            
+
             background('#222222');
-            
-            
+
+
             fill(255, 204, 100);
-            textFont('Georgia'); 
-            textSize(60); 
+            textFont('Georgia');
+            textSize(60);
             textStyle(ITALIC);
-            text("Will.I.Am", (windowWidth / 4)+120, (windowHeight / 2)-100);
-            
-            textSize(40); 
+            text("Will.I.Am", (windowWidth / 4) + 120, (windowHeight / 2) - 100);
+
+            textSize(40);
             textStyle(NORMAL);
             text("Press 'R' to record your own poem", windowWidth / 4, windowHeight / 2);
-            text("Press 'W' to hear a Shakespeare poem", windowWidth / 4, (windowHeight / 2)+40);
-             text("Press the spacebar to read or stop reading the poem", windowWidth / 4, (windowHeight / 2)+80);
-              
-            
-             
+            text("Press 'W' to hear a Shakespeare poem", windowWidth / 4, (windowHeight / 2) + 40);
+            text("Press the spacebar to read or stop reading the poem", windowWidth / 4, (windowHeight / 2) + 80);
+
+
+
+
+        }
+
+
+
+
+
+
+
+        function printPoem() {
+
+            background('#222222');
+            var i = floor(random(0, 152)); //gets random poem from 
+
+            typeWriter(sonnets[i].title, 0, windowWidth / 4, 50, 100); //gets the title 
+            typeWriter(sonnets[i].author, 0, windowWidth / 4, 70, 100); //gets the author
+
+            var count1 = 120;
+            var arr1 = new Array(sonnets[i].title, sonnets[i].author);
+            poemT = join(arr1, "");
+            var poems = sonnets[i].lines;
+            readPoem.speak(poemT);
+
+
+            poemString = join(poems, " "); //joins the array into a string
+
+
+
+            for (var s = 0; s < 14; s++) {
+                typeWriter(sonnets[i].lines[s], 0, windowWidth / 4, count1, 100); //types the lines of the poem to the screen
+                count1 += 35;
 
             }
-        
-        
-        
 
 
+        }
 
 
-            function printPoem() {
-                background(0);
-                var i = floor(random(0, 152));
+        function recordPoem() {
 
-                typeWriter(sonnets[i].title, 0,windowWidth / 4, 50, 100);
-                typeWriter(sonnets[i].author, 0, windowWidth / 4, 70, 100);
-
-                var count = 120;
-                var arr1 = new Array(sonnets[i].title, sonnets[i].author);
-                poemT = join(arr1, "");
-                var poems = sonnets[i].lines;
-
-                readPoem.speak(poemT);
-
-                poemString = join(poems," ");
-               
-
-
-                for (var s = 0; s < 14; s++) {
-                    typeWriter(sonnets[i].lines[s], 0, windowWidth / 4, count, 100);
-                    count += 35;
-
-                }
-
-
-            }
-        
-        
-        function recordPoem(){
+            text("Tip: Make a pause in your speech to skip a line", windowWidth / 4, 50);
             background('#222222');
             speakbutton = createButton('Start Recording');
-  		    speakbutton.position( windowWidth / 3, 300);
-           
-  		    speakbutton.mousePressed(doSpeak);
-            
-            
+            speakbutton.position(windowWidth / 3, 300);
+
+            speakbutton.mousePressed(doSpeak);
+
+
         }
-        
-        function doSpeak(){
+
+        function doSpeak() {
+            typeWriter("Press 'S' to save text file of your poem", 0, windowWidth / 4, 50, 100);
             speakbutton.remove();
             background('#222222');
-            
-            ownPoem.onResult=resultRecord;
-            ownPoem.start(true,false);
-        }
-        
-        function resultRecord(){
-            if(ownPoem.resultValue){
-                var myDiv= createDiv(ownPoem.resultString);
-                myDiv.position(windowWidth / 3,100);
-                myDiv.style("font-family",'Consolas');
-                myDiv.style("font-size","18px");
-                myDiv.style("color", "#fff");
-                
-        
-             typeWriter("Press 'S' to save text file of your poem", 0,windowWidth / 4, 50, 100);
-                
-                
-            }
-            
+
+            ownPoem.onResult = resultRecord;
+            ownPoem.start();
         }
 
-            function keyPressed() {
-                if (key == "W" || key == "w") {
-                    read=true;
-                    printPoem();
-                }
-                
-                if (key=="R" || key=="r")
-                    {   
-                        read=false;
-                        recordPoem();
-                    }
-                
-                
-                if (read){
-                
-                if(key==" ")
-                    if (playing){
-                    readPoem.speak(poemString);
-                    playing=false;
-                    }
-                    else {
+        function resultRecord() {
+
+
+            typeWriter(ownPoem.resultString, 0, windowWidth / 4, count, 100);
+            count += 35;
+
+            append(arr1, ownPoem.resultString);
+
+        }
+
+
+
+        function keyPressed() {
+            if (key == "W" || key == "w") {
+                read = true;
+
+                printPoem(); //prints the poem on screen
+            }
+
+            if (key == "R" || key == "r") {
+                read = false;
+
+                recordPoem(); //prompts to recrod your own poem
+            }
+
+
+            if (read) {
+
+                if (key == " ") { //if the read poem option is chosen spacebar controls the pause/play feature
+                    if (playing) {
+                        readPoem.speak(poemString);
+                        playing = false;
+                    } else {
                         readPoem.stop();
-                        playing=true;
+                        playing = true;
                     }
-                    
-                }
-                
-                if (!read){
-                    if (key=="S" || key=="s")
-                        save(ownPoem.resultString, 'yourpoem.txt');
-                }
-            
-            }
 
-            function mousePressed() {
-                
-                if (read){
-
-                readPoem.speak(poemString);
-            }
-            }
-
-
-
-            function doList() {
-                readPoem.listVoices();
-
-            }
-
-            function draw() {
-                
-            }
-
-            function typeWriter(sentence, n, x, y, speed) {
-
-                if (n < (sentence.length)) {
-                    fill("#fff");
-                    textFont('Consolas');
-                    textSize(20);
-                    text(sentence.substring(0, n + 1), x, y, );
-                    n++;
-                    setTimeout(function() {
-                        typeWriter(sentence, n, x, y, speed)
-                    }, speed);
                 }
             }
+
+            if (!read) {
+                if (key == "S" || key == "s") {
+                    var theResult = join(arr1, " ");
+                    save(theResult, 'yourpoem.txt');
+                }
+
+            }
+        }
+
+        function mousePressed() {
+
+            if (read) {
+
+                readPoem.speak(poemString); //reads the poem
+            }
+        }
+
+
+
+        function doList() {
+            readPoem.listVoices();
+
+        }
+
+        function draw() {
+
+        }
+
+        function typeWriter(sentence, n, x, y, speed) { //type writer function
+
+            if (n < (sentence.length)) {
+                fill("#fff");
+                textFont('Consolas');
+                textSize(20);
+                text(sentence.substring(0, n + 1), x, y, );
+                n++;
+                setTimeout(function() {
+                    typeWriter(sentence, n, x, y, speed)
+                }, speed);
+            }
+        }
 
     </script>
 </head>
